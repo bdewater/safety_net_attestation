@@ -10,8 +10,9 @@ require_relative "x5c_key_finder"
 module SafetyNetAttestation
   class Statement
     GOOGLE_ROOT_CERTIFICATES = Dir.glob(
-      File.join(__dir__, "lib", "safety_net_attestation", "certificates", "*.*")
-    ).map do |file|
+      File.join(Dir.getwd, "lib", "safety_net_attestation", "certificates", "*.*")
+    ).map do |path|
+      file = File.binread(path)
       OpenSSL::X509::Certificate.new(file)
     end.freeze
 

@@ -58,6 +58,11 @@ RSpec.describe SafetyNetAttestation::Statement do
     expect(subject.advice).to be_nil
   end
 
+  it "loaded built-in certificates" do
+    expect(described_class::GOOGLE_ROOT_CERTIFICATES).not_to be_empty
+    expect(described_class::GOOGLE_ROOT_CERTIFICATES).to all(be_kind_of(OpenSSL::X509::Certificate))
+  end
+
   context "using reader methods before validation" do
     subject { described_class.new(response) }
 
@@ -94,6 +99,34 @@ RSpec.describe SafetyNetAttestation::Statement do
       it do
         expect { subject }.to raise_error(SafetyNetAttestation::TimestampError)
       end
+    end
+  end
+
+  context "example JWT" do
+    let(:response) { File.read(File.join(__dir__, "webauthn-example-jwt.txt")) }
+    let(:nonce) { "ywDhtBB5GEejNUbs2JrFKiU2RTlZPYXY3V4qBLYI5+c=" }
+    let(:current_time) { Time.utc(2019, 7, 7, 16, 15, 11) }
+
+    subject { described_class.new(response).verify(nonce) }
+
+    before do
+      allow(OpenSSL::X509::StoreContext).to receive(:new).and_wrap_original do |m, *args|
+        store_context = m.call(*args)
+        store_context.time = current_time
+        store_context
+      end
+      allow(Time).to receive(:now).and_return(current_time)
+    end
+
+    it "returns itself and allows access to reader methods when everything is valid", :aggregate_failures do
+      expect(subject).to be_a(described_class)
+
+      expect(subject.cts_profile_match?).to be true
+      expect(subject.basic_integrity?).to be true
+      expect(subject.apk_package_name).to eq("com.google.android.gms")
+      expect(subject.apk_certificate_digest_sha256).to eq(["8P1sW0EPJcslw7UzRsiXL64w+O50Ed+RBICtay1g24M="])
+      expect(subject.error).to be_nil
+      expect(subject.advice).to be_nil
     end
   end
 end
