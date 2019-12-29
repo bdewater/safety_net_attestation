@@ -6,6 +6,8 @@ rvm:
   - 2.5.7
   - 2.4.9
   - 2.3.8
+before_install:
+  - gem install bundler
 script:
   - bin/rspec
 jobs:
