@@ -25,22 +25,22 @@ module SafetyNetAttestation
     end
 
     def verify(nonce, timestamp_leeway: 60, trusted_certificates: GOOGLE_ROOT_CERTIFICATES, time: Time.now)
-      certificates = nil
+      certificate_chain = nil
       response, _ = JWT.decode(@jws_result, nil, true, algorithms: ["ES256", "RS256"]) do |headers|
         x5c_certificates = headers["x5c"].map do |encoded|
           OpenSSL::X509::Certificate.new(Base64.strict_decode64(encoded))
         end
 
-        certificates = X5cKeyFinder.from(x5c_certificates, trusted_certificates, time: time)
-        certificates.first.public_key
+        certificate_chain = X5cKeyFinder.from(x5c_certificates, trusted_certificates, time: time)
+        certificate_chain.first.public_key
       end
 
-      verify_certificate_subject(certificates.first)
+      verify_certificate_subject(certificate_chain.first)
       verify_nonce(response, nonce)
       verify_timestamp(response, timestamp_leeway, time)
 
       @json = response
-      @certificates = certificates
+      @certificate_chain = certificate_chain
       self
     end
 
@@ -80,10 +80,10 @@ module SafetyNetAttestation
       json["advice"]&.split(",")
     end
 
-    def certificates
+    def certificate_chain
       raise NotVerifiedError unless json
 
-      @certificates
+      @certificate_chain
     end
 
     private
