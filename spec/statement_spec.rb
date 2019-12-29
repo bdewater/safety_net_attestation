@@ -110,16 +110,7 @@ RSpec.describe SafetyNetAttestation::Statement do
     let(:nonce) { "ywDhtBB5GEejNUbs2JrFKiU2RTlZPYXY3V4qBLYI5+c=" }
     let(:current_time) { Time.utc(2019, 7, 7, 16, 15, 11) }
 
-    subject { described_class.new(response).verify(nonce) }
-
-    before do
-      allow(OpenSSL::X509::StoreContext).to receive(:new).and_wrap_original do |m, *args|
-        store_context = m.call(*args)
-        store_context.time = current_time
-        store_context
-      end
-      allow(Time).to receive(:now).and_return(current_time)
-    end
+    subject { described_class.new(response).verify(nonce, time: current_time) }
 
     it "returns itself and allows access to reader methods when everything is valid", :aggregate_failures do
       expect(subject).to be_a(described_class)

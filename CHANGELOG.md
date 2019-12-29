@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `Statement#certificates` exposes the certificate chain used during verification
+- `Statement#verify` takes an optional `time` argument, defaulting to the current time. This can be used for testing
+  captured statements from real devices without needing stubbing.
 
 ## [0.2.0] - 2019-12-28
 ### Fixed

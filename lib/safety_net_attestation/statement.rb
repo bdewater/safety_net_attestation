@@ -24,20 +24,20 @@ module SafetyNetAttestation
       @jws_result = jws_result
     end
 
-    def verify(nonce, timestamp_leeway: 60, trusted_certificates: GOOGLE_ROOT_CERTIFICATES)
+    def verify(nonce, timestamp_leeway: 60, trusted_certificates: GOOGLE_ROOT_CERTIFICATES, time: Time.now)
       certificates = nil
       response, _ = JWT.decode(@jws_result, nil, true, algorithms: ["ES256", "RS256"]) do |headers|
         x5c_certificates = headers["x5c"].map do |encoded|
           OpenSSL::X509::Certificate.new(Base64.strict_decode64(encoded))
         end
 
-        certificates = X5cKeyFinder.from(x5c_certificates, trusted_certificates)
+        certificates = X5cKeyFinder.from(x5c_certificates, trusted_certificates, time: time)
         certificates.first.public_key
       end
 
       verify_certificate_subject(certificates.first)
       verify_nonce(response, nonce)
-      verify_timestamp(response, timestamp_leeway)
+      verify_timestamp(response, timestamp_leeway, time)
 
       @json = response
       @certificates = certificates
@@ -102,8 +102,8 @@ module SafetyNetAttestation
       end
     end
 
-    def verify_timestamp(response, leeway)
-      now = Time.now.to_f
+    def verify_timestamp(response, leeway, time)
+      now = time.to_f
       response_time = response["timestampMs"] / 1000.0
       unless response_time.between?(now - leeway, now + leeway)
         raise TimestampError, "not within #{leeway}s leeway"
