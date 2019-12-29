@@ -39,6 +39,7 @@ module SafetyNetAttestation
       verify_timestamp(response, timestamp_leeway)
 
       @json = response
+      @certificates = certificates
       self
     end
 
@@ -76,6 +77,12 @@ module SafetyNetAttestation
       raise NotVerifiedError unless json
 
       json["advice"]&.split(",")
+    end
+
+    def certificates
+      raise NotVerifiedError unless json
+
+      @certificates
     end
 
     private

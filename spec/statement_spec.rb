@@ -56,6 +56,8 @@ RSpec.describe SafetyNetAttestation::Statement do
     expect(subject.apk_certificate_digest_sha256).to eq(["n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="])
     expect(subject.error).to be_nil
     expect(subject.advice).to be_nil
+    expect(subject.certificates).not_to be_empty
+    expect(subject.certificates).to all(be_kind_of(OpenSSL::X509::Certificate))
   end
 
   it "loaded built-in certificates" do
@@ -73,6 +75,7 @@ RSpec.describe SafetyNetAttestation::Statement do
       expect { subject.apk_certificate_digest_sha256 }.to raise_error(SafetyNetAttestation::NotVerifiedError)
       expect { subject.error }.to raise_error(SafetyNetAttestation::NotVerifiedError)
       expect { subject.advice }.to raise_error(SafetyNetAttestation::NotVerifiedError)
+      expect { subject.certificates }.to raise_error(SafetyNetAttestation::NotVerifiedError)
     end
   end
 
@@ -127,6 +130,8 @@ RSpec.describe SafetyNetAttestation::Statement do
       expect(subject.apk_certificate_digest_sha256).to eq(["8P1sW0EPJcslw7UzRsiXL64w+O50Ed+RBICtay1g24M="])
       expect(subject.error).to be_nil
       expect(subject.advice).to be_nil
+      expect(subject.certificates).not_to be_empty
+      expect(subject.certificates).to all(be_kind_of(OpenSSL::X509::Certificate))
     end
   end
 end
