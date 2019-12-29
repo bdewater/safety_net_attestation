@@ -31,9 +31,10 @@ RSpec.describe SafetyNetAttestation::X5cKeyFinder do
   let(:x5c_certificates) { [leaf_certificate] }
   subject(:keyfinder) { described_class.from(x5c_certificates, [root_certificate]) }
 
-  it "returns the public key from a certificate that is signed by trusted roots" do
-    expect(keyfinder).to be_a(OpenSSL::PKey::RSA)
-    expect(keyfinder.to_pem).to eq(leaf_certificate.public_key.to_pem)
+  it "returns the certificate chain used to verify the JWT" do
+    expect(keyfinder).to all(be_a(OpenSSL::X509::Certificate))
+    expect(keyfinder.first.to_pem).to eq(leaf_certificate.to_pem)
+    expect(keyfinder.last.to_pem).to eq(root_certificate.to_pem)
   end
 
   context "certificate" do

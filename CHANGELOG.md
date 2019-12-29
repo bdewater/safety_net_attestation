@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `Statement#certificates` exposes the decoded certificates from the x5c JWT header after verification
+- `Statement#certificates` exposes the certificate chain used during verification
 
 ## [0.2.0] - 2019-12-28
 ### Fixed

@@ -15,7 +15,7 @@ module SafetyNetAttestation
       store_context = OpenSSL::X509::StoreContext.new(store, signing_certificate, certificate_chain)
 
       if store_context.verify
-        signing_certificate.public_key
+        store_context.chain
       else
         error = "Certificate verification failed: #{store_context.error_string}."
         error = "#{error} Certificate subject: #{store_context.current_cert.subject}." if store_context.current_cert

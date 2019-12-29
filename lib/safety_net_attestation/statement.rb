@@ -27,11 +27,12 @@ module SafetyNetAttestation
     def verify(nonce, timestamp_leeway: 60, trusted_certificates: GOOGLE_ROOT_CERTIFICATES)
       certificates = nil
       response, _ = JWT.decode(@jws_result, nil, true, algorithms: ["ES256", "RS256"]) do |headers|
-        certificates = headers["x5c"].map do |encoded|
+        x5c_certificates = headers["x5c"].map do |encoded|
           OpenSSL::X509::Certificate.new(Base64.strict_decode64(encoded))
         end
 
-        X5cKeyFinder.from(certificates, trusted_certificates)
+        certificates = X5cKeyFinder.from(x5c_certificates, trusted_certificates)
+        certificates.first.public_key
       end
 
       verify_certificate_subject(certificates.first)
