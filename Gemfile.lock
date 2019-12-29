@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    safety_net_attestation (0.2.0)
+    safety_net_attestation (0.3.0)
       jwt (~> 2.0)
 
 GEM
