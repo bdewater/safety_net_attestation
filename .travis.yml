@@ -2,6 +2,7 @@
 language: ruby
 cache: bundler
 rvm:
+  - 2.7.0
   - 2.6.5
   - 2.5.7
   - 2.4.9
@@ -14,7 +15,7 @@ script:
 jobs:
   fast_finish: true
   include:
-    - rvm: 2.6.5
+    - rvm: 2.7.0
       name: Rubocop
       script:
         - bundle info rubocop
